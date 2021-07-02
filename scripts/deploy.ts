@@ -18,22 +18,41 @@ async function main() {
   const Greeter = await hre.ethers.getContractFactory("Greeter");
   const greeter = await Greeter.deploy("Hello, Hardhat!");
 
+  //Get contract factory instances of both tokens
   const DaiTokenFactory: ContractFactory = await hre.ethers.getContractFactory(
     "DaiToken"
   );
   const DappTokenFactory: ContractFactory = await hre.ethers.getContractFactory(
     "DappToken"
   );
+  const TokenFarmFactory: ContractFactory = await hre.ethers.getContractFactory(
+    "TokenFarm"
+  );
+
+  //Deploy each token
   const DaiToken: Contract = await DaiTokenFactory.deploy();
   const DappToken: Contract = await DappTokenFactory.deploy();
+  const TokenFarm: Contract = await TokenFarmFactory.deploy(
+    <string>DappToken.address,
+    <string>DaiToken.address
+  );
 
+  //Wait until they are deployed
   await greeter.deployed();
-  await DaiToken.deployed();
-  await DappToken.deployed();
+  const deployedDaiToken: Contract = await DaiToken.deployed();
+  const deployedDappToken: Contract = await DappToken.deployed();
+  const deployedTokenFarm: Contract = await TokenFarm.deployed();
+
+  // Transfer
+  await deployedDappToken.transfer(
+    <string>deployedTokenFarm.address,
+    "1000000000000000000000000"
+  );
 
   console.log("Greeter deployed to:", greeter.address);
-  console.log(`Dai Token deployed to: ${DaiToken.address}`);
-  console.log(`Dapp Token deployed to: ${DappToken.address}`);
+  console.log(`Dai Token deployed to: ${deployedDaiToken.address}`);
+  console.log(`Dapp Token deployed to: ${deployedDappToken.address}`);
+  console.log(`Token Farm deployed to: ${deployedTokenFarm.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
