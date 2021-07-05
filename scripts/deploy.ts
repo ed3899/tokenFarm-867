@@ -18,6 +18,7 @@ async function main() {
   // We get the contract to deploy
   const Greeter = await hre.ethers.getContractFactory("Greeter");
   const greeter = await Greeter.deploy("Hello, Hardhat!");
+  const signers = await ethers.getSigners();
 
   //Get contract factory instances of both tokens
   const DaiTokenFactory: ContractFactory = await hre.ethers.getContractFactory(
@@ -51,7 +52,7 @@ async function main() {
   );
 
   // Transfer 100 Mock DAI tokens to investor
-  // await deployedDaiToken.transfer();
+  await deployedDaiToken.transfer(signers[1].address, "100000000000000000000");
 
   console.log("Greeter deployed to:", greeter.address);
   console.log(`Dai Token deployed to: ${deployedDaiToken.address}`);
