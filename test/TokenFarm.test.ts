@@ -22,6 +22,7 @@ async function fixture(_wallets: Wallet[], _mockProvider: MockProvider) {
   const [owner, investor] = await ethers.getSigners();
 
   const _DaiToken: Contract = await deployContract(owner, DaiTokenJSON);
+  const DaiTokenFactory = await ethers.getContractFactory("DaiToken");
   const _DappToken: Contract = await deployContract(owner, DappTokenJSON);
   const _TokenFarm: Contract = await deployContract(owner, TokenFarmJSON, [
     _DappToken.address,
@@ -29,6 +30,8 @@ async function fixture(_wallets: Wallet[], _mockProvider: MockProvider) {
   ]);
 
   const DaiToken = await _DaiToken.deployed();
+  const _DaiToken2 = await DaiTokenFactory.deploy();
+  const DaiToken2 = await _DaiToken2.deployed();
   const DappToken = await _DappToken.deployed();
   const TokenFarm = await _TokenFarm.deployed();
 
@@ -44,6 +47,7 @@ async function fixture(_wallets: Wallet[], _mockProvider: MockProvider) {
 
   return {
     DaiToken,
+    DaiToken2,
     DappToken,
     TokenFarm,
   };
@@ -64,12 +68,21 @@ describe("TokenFarm suite", function () {
 
 describe.only("Farming tokens", async function () {
   it("Rewards investors for staking mDai tokens", async function () {
-    const {DaiToken} = await loadFixture(fixture);
+    const {DaiToken, DaiToken2, TokenFarm} = await loadFixture(fixture);
     const [owner, investor] = await ethers.getSigners();
 
     //Check investor balance before staking
     const balance: BigNumber = await DaiToken.balanceOf(investor.address);
     const formatedBalance = ethers.utils.formatUnits(balance.toString(), 18);
-    expect(formatedBalance).to.equal("100.0", "Incorrect balance before staking");
+    expect(formatedBalance).to.equal(
+      "100.0",
+      "Incorrect balance before staking"
+    );
+
+    // Stake Mock Dai Tokens
+    // await DaiToken2.approve(TokenFarm.address, tokens("100"), {
+    //   from: investor.address,
+    // });
+    // await TokenFarm.stakeTokens(tokens("100"), {from: investor.address});
   });
 });
