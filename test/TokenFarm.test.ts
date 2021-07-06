@@ -19,18 +19,14 @@ const tokens = function (n: string): BigNumber {
 };
 describe.only("TokenFarm suite", function () {
   async function fixture(_wallets: Wallet[], _mockProvider: MockProvider) {
-    const signers = await ethers.getSigners();
+    const [owner, investor] = await ethers.getSigners();
 
-    const _DaiToken: Contract = await deployContract(signers[0], DaiTokenJSON);
-    const _DappToken: Contract = await deployContract(
-      signers[0],
-      DappTokenJSON
-    );
-    const _TokenFarm: Contract = await deployContract(
-      signers[0],
-      TokenFarmJSON,
-      [_DappToken.address, _DaiToken.address]
-    );
+    const _DaiToken: Contract = await deployContract(owner, DaiTokenJSON);
+    const _DappToken: Contract = await deployContract(owner, DappTokenJSON);
+    const _TokenFarm: Contract = await deployContract(owner, TokenFarmJSON, [
+      _DappToken.address,
+      _DaiToken.address,
+    ]);
 
     const DaiToken = await _DaiToken.deployed();
     const DappToken = await _DappToken.deployed();
@@ -41,7 +37,9 @@ describe.only("TokenFarm suite", function () {
     //"1000000000000000000000000"
 
     // Transfer 100 Mock DAI tokens to investor
-    await DaiToken.transfer(signers[1].address, tokens("100"));
+    await DaiToken.transfer(investor.address, tokens("100"), {
+      from: owner.address,
+    });
     //"100000000000000000000"
 
     return {
