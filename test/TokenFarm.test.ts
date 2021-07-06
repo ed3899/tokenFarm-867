@@ -1,4 +1,4 @@
-import {expect} from "chai";
+import {expect, assert} from "chai";
 import {BigNumber, Contract, ContractFactory, Wallet} from "ethers";
 import {MockProvider} from "ethereum-waffle";
 import {ethers, waffle} from "hardhat";
@@ -14,48 +14,10 @@ import * as DappTokenJSON from "../artifacts/contracts/DappToken.sol/DappToken.j
 //TokenFarm ABI
 import * as TokenFarmJSON from "../artifacts/contracts/TokenFarm.sol/TokenFarm.json";
 
+const tokens = function (n: string): BigNumber {
+  return ethers.utils.parseUnits(n, 18);
+};
 describe.only("TokenFarm suite", function () {
-  //   this.beforeEach("Deploy contracts", async function () {
-  //     const DaiTokenFactory: ContractFactory = await ethers.getContractFactory(
-  //       "DaiToken"
-  //     );
-
-  //     const DappTokenFactory: ContractFactory = await ethers.getContractFactory(
-  //       "DappToken"
-  //     );
-
-  //     const TokenFarmFactory: ContractFactory = await ethers.getContractFactory(
-  //       "TokenFarm"
-  //     );
-
-  //     const signers = await ethers.getSigners();
-
-  //     //Deploy each token
-  //     const DaiToken: Contract = await DaiTokenFactory.deploy();
-  //     const DappToken: Contract = await DappTokenFactory.deploy();
-  //     const TokenFarm: Contract = await TokenFarmFactory.deploy(
-  //       <string>DappToken.address,
-  //       <string>DaiToken.address
-  //     );
-
-  //     //Wait until they are deployed
-  //     const deployedDaiToken: Contract = await DaiToken.deployed();
-  //     const deployedDappToken: Contract = await DappToken.deployed();
-  //     const deployedTokenFarm: Contract = await TokenFarm.deployed();
-
-  //     // Transfer all tokens to TokenFarm (1 million)
-  //     await deployedDappToken.transfer(
-  //       <string>deployedTokenFarm.address,
-  //       "1000000000000000000000000"
-  //     );
-
-  //     // Transfer 100 Mock DAI tokens to investor
-  //     await deployedDaiToken.transfer(
-  //       signers[1].address,
-  //       "100000000000000000000"
-  //     );
-  //   });
-
   async function fixture(_wallets: Wallet[], _mockProvider: MockProvider) {
     const signers = await ethers.getSigners();
 
@@ -75,13 +37,12 @@ describe.only("TokenFarm suite", function () {
     const TokenFarm = await _TokenFarm.deployed();
 
     // Transfer all tokens to TokenFarm (1 million)
-    await DappToken.transfer(
-      <string>TokenFarm.address,
-      "1000000000000000000000000"
-    );
+    await DappToken.transfer(<string>TokenFarm.address, tokens("1000000"));
+    //"1000000000000000000000000"
 
     // Transfer 100 Mock DAI tokens to investor
-    await DaiToken.transfer(signers[1].address, "100000000000000000000");
+    await DaiToken.transfer(signers[1].address, tokens("100"));
+    //"100000000000000000000"
 
     return {
       DaiToken,
@@ -102,8 +63,13 @@ describe.only("TokenFarm suite", function () {
     );
 
     expect(secondAccDaiTokenBalance.toString()).to.equal(
-      "100000000000000000000"
+      tokens("100").toString()
     );
     expect(formattedBalance).to.equal("100.0");
+  });
+
+  it("Dai Token has the right name", async function () {
+    const {DaiToken} = await loadFixture(fixture);
+    assert.strictEqual(await DaiToken.name(), "Mock DAI Token");
   });
 });
