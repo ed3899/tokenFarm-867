@@ -49,6 +49,12 @@ describe.only("TokenFarm suite", function () {
     };
   }
 
+  it.only("Contract has the tokens", async function () {
+    const {DappToken, TokenFarm} = await loadFixture(fixture);
+    const balance: BigNumber = await DappToken.balanceOf(TokenFarm.address);
+    assert.equal(balance.toString(), tokens("1000000").toString());
+  });
+
   it("Second account must hold 100000000000000000000 mDai tokens", async function () {
     const {DaiToken, DappToken, TokenFarm} = await loadFixture(fixture);
     const signers: SignerWithAddress[] = await ethers.getSigners();
