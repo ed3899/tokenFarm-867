@@ -36,6 +36,13 @@ contract TokenFarm {
         isStaking[msg.sender] = true;
         hasStaked[msg.sender] = true;
     }
+
     //2. Unstaking Tokens (Withdraw)
+
     //3. Issuing tokens
+    function issueToken() public {
+        for (uint256 i = 0; i < stakers.length; i++) {
+            
+        }
+    }
 }
