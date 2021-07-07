@@ -22,7 +22,6 @@ async function fixture(_wallets: Wallet[], _mockProvider: MockProvider) {
   const [owner, investor] = await ethers.getSigners();
 
   const _DaiToken: Contract = await deployContract(owner, DaiTokenJSON);
-  const DaiTokenFactory = await ethers.getContractFactory("DaiToken");
   const _DappToken: Contract = await deployContract(owner, DappTokenJSON);
   const _TokenFarm: Contract = await deployContract(owner, TokenFarmJSON, [
     _DappToken.address,
@@ -30,8 +29,6 @@ async function fixture(_wallets: Wallet[], _mockProvider: MockProvider) {
   ]);
 
   const DaiToken = await _DaiToken.deployed();
-  const _DaiToken2 = await DaiTokenFactory.deploy();
-  const DaiToken2 = await _DaiToken2.deployed();
   const DappToken = await _DappToken.deployed();
   const TokenFarm = await _TokenFarm.deployed();
 
@@ -47,7 +44,6 @@ async function fixture(_wallets: Wallet[], _mockProvider: MockProvider) {
 
   return {
     DaiToken,
-    DaiToken2,
     DappToken,
     TokenFarm,
   };
@@ -67,11 +63,13 @@ describe("TokenFarm suite", function () {
 });
 
 describe.only("Farming tokens", async function () {
-  it("Rewards investors for staking mDai tokens", async function () {
-    const {DaiToken, DaiToken2, TokenFarm} = await loadFixture(fixture);
+  it.only("Rewards investors for staking mDai tokens", async function () {
+    const {DaiToken, TokenFarm} = await loadFixture(fixture);
+
     const [owner, investor] = await ethers.getSigners();
 
     //Check investor balance before staking
+    let result: BigNumber;
     const balance: BigNumber = await DaiToken.balanceOf(investor.address);
     const formatedBalance = ethers.utils.formatUnits(balance.toString(), 18);
     expect(formatedBalance).to.equal(
@@ -80,9 +78,13 @@ describe.only("Farming tokens", async function () {
     );
 
     // Stake Mock Dai Tokens
-    // await DaiToken2.approve(TokenFarm.address, tokens("100"), {
-    //   from: investor.address,
-    // });
-    // await TokenFarm.stakeTokens(tokens("100"), {from: investor.address});
+    await DaiToken.connect(investor).approve(TokenFarm.address, tokens("100"));
+    await TokenFarm.connect(investor).stakeTokens(tokens("100"));
+
+    result = await DaiToken.balanceOf(investor.address);
+    assert.strictEqual(result.toString(), "0");
+
+    result = await DaiToken.balanceOf(TokenFarm.address);
+    assert.strictEqual(result.toString(), tokens("100").toString());
   });
 });
