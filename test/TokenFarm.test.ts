@@ -81,10 +81,14 @@ describe.only("Farming tokens", async function () {
     await DaiToken.connect(investor).approve(TokenFarm.address, tokens("100"));
     await TokenFarm.connect(investor).stakeTokens(tokens("100"));
 
+    //Check staking result
     result = await DaiToken.balanceOf(investor.address);
     assert.strictEqual(result.toString(), "0");
 
     result = await DaiToken.balanceOf(TokenFarm.address);
+    assert.strictEqual(result.toString(), tokens("100").toString());
+
+    result = await TokenFarm.stakingBalance(investor.address);
     assert.strictEqual(result.toString(), tokens("100").toString());
   });
 });
