@@ -42,7 +42,9 @@ contract TokenFarm {
     //3. Issuing tokens
     function issueToken() public {
         for (uint256 i = 0; i < stakers.length; i++) {
-            
+            address recipient = stakers[i];
+            uint256 balance = stakingBalance[recipient];
+            dappToken.transfer(recipient, balance);
         }
     }
 }
