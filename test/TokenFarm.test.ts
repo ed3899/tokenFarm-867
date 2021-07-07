@@ -83,12 +83,31 @@ describe.only("Farming tokens", async function () {
 
     //Check staking result
     result = await DaiToken.balanceOf(investor.address);
-    assert.strictEqual(result.toString(), "0");
+    assert.strictEqual(
+      result.toString(),
+      "0",
+      "investor Mock Dai wallet balance correct after staking"
+    );
 
     result = await DaiToken.balanceOf(TokenFarm.address);
-    assert.strictEqual(result.toString(), tokens("100").toString());
+    assert.strictEqual(
+      result.toString(),
+      tokens("100").toString(),
+      "Token Farm Mock Dai balance correct after staking"
+    );
 
     result = await TokenFarm.stakingBalance(investor.address);
-    assert.strictEqual(result.toString(), tokens("100").toString());
+    assert.strictEqual(
+      result.toString(),
+      tokens("100").toString(),
+      "investor staking balance correct after staking"
+    );
+
+    result = await TokenFarm.isStaking(investor.address);
+    assert.strictEqual(
+      result.toString(),
+      "true",
+      "investor staking status correct after staking"
+    );
   });
 });
