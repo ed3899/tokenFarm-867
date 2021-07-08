@@ -64,7 +64,7 @@ describe("TokenFarm suite", function () {
 
 describe.only("Farming tokens", async function () {
   it.only("Rewards investors for staking mDai tokens", async function () {
-    const {DaiToken, TokenFarm} = await loadFixture(fixture);
+    const {DaiToken, TokenFarm, DappToken} = await loadFixture(fixture);
 
     const [owner, investor] = await ethers.getSigners();
 
@@ -108,6 +108,17 @@ describe.only("Farming tokens", async function () {
       result.toString(),
       "true",
       "investor staking status correct after staking"
+    );
+
+    // Issue tokens
+    await TokenFarm.connect(owner).issueTokens();
+
+    // Check balances after issuance
+    result = await DappToken.connect(owner).balanceOf(investor.address);
+    assert.strictEqual(
+      result.toString(),
+      tokens("100").toString(),
+      "Investor Dapp token wallet balance after issuance"
     );
   });
 });

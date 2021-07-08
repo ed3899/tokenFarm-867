@@ -8,6 +8,7 @@ contract TokenFarm {
     string public name = "Token Farm";
     DappToken public dappToken;
     DaiToken public daiToken;
+    address public owner;
 
     address[] public stakers;
     mapping(address => uint256) public stakingBalance;
@@ -17,10 +18,14 @@ contract TokenFarm {
     constructor(DappToken _dappToken, DaiToken _daiToken) {
         dappToken = _dappToken;
         daiToken = _daiToken;
+        owner = msg.sender;
     }
 
     //1. Stakes Tokens (Deposit)
     function stakeTokens(uint256 _amount) public {
+        // Require amount greater than 0
+        require(_amount > 0, "Amount cannot be 0");
+
         // Transfer Mock Dai tokens to this contract for staking
         daiToken.transferFrom(msg.sender, address(this), _amount);
 
@@ -40,11 +45,17 @@ contract TokenFarm {
     //2. Unstaking Tokens (Withdraw)
 
     //3. Issuing tokens
-    function issueToken() public {
+    function issueTokens() public {
+        //Only owner can call this function
+        require(msg.sender == owner, "caller must be the owner");
+
+        //Issue tokens to all stakers
         for (uint256 i = 0; i < stakers.length; i++) {
             address recipient = stakers[i];
             uint256 balance = stakingBalance[recipient];
-            dappToken.transfer(recipient, balance);
+            if (balance > 0) {
+                dappToken.transfer(recipient, balance);
+            }
         }
     }
 }
