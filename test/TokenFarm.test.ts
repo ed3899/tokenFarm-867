@@ -124,6 +124,29 @@ describe.only("Farming tokens", async function () {
     // Ensure that only owner can issue tokens
     await expect(TokenFarm.connect(investor).issueTokens()).to.be.reverted;
 
-    
+    //Unstake tokens
+    await TokenFarm.connect(investor).unstakeTokens();
+
+    //Check results after unstaking
+    result = await DaiToken.connect(investor).balanceOf(investor.address);
+    assert.strictEqual(
+      result.toString(),
+      tokens("100").toString(),
+      "Investor Mock Dai wallet balance correct after staking"
+    );
+
+    result = await DaiToken.connect(investor).balanceOf(TokenFarm.address);
+    assert.strictEqual(
+      result.toString(),
+      tokens("0").toString(),
+      "Token farm mock dai correct after staking"
+    );
+
+    result = await TokenFarm.connect(investor).stakingBalance(investor.address);
+    assert.strictEqual(
+      result.toString(),
+      tokens("0").toString(),
+      "Investor staking balance correct after staking"
+    );
   });
 });
