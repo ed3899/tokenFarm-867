@@ -120,5 +120,10 @@ describe.only("Farming tokens", async function () {
       tokens("100").toString(),
       "Investor Dapp token wallet balance after issuance"
     );
+
+    // Ensure that only owner can issue tokens
+    await expect(TokenFarm.connect(investor).issueTokens()).to.be.reverted;
+
+    
   });
 });
